@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import django
+import django, json
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.http import JsonResponse
 
 if django.VERSION < (2, 0):
     from django.core.urlresolvers import (
@@ -33,7 +34,8 @@ import sys
 
 def get_maintenance_response(request):
     """
-    Return a '503 Service Unavailable' maintenance response.
+    Return a '503 Service Unavailable' maintenance response when receiving http request.
+    Return {'PAGE_RELOAD_REQUIRED': True} when receiving ajax request.
     """
     if settings.MAINTENANCE_MODE_REDIRECT_URL:
         return redirect(settings.MAINTENANCE_MODE_REDIRECT_URL)
@@ -60,6 +62,9 @@ def get_maintenance_response(request):
     response = render(request, settings.MAINTENANCE_MODE_TEMPLATE,
                       status=settings.MAINTENANCE_MODE_STATUS_CODE,
                       **kwargs)
+
+    if request.is_ajax():
+        return JsonResponse({'PAGE_RELOAD_REQUIRED': True})
 
     add_never_cache_headers(response)
     return response
