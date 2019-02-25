@@ -115,6 +115,12 @@ def need_maintenance_response(request):
             if settings.MAINTENANCE_MODE_IGNORE_AUTHENTICATED_USER \
                     and request.user.is_authenticated():
                 return False
+            
+            if settings.MAINTENANCE_MODE_FOR_USERS_WITH_EMAIL_DOMAIN \
+                    and request.user.is_authenticated() \
+                    and request.user.email \
+                    and request.user.email.split('@')[1] in settings.MAINTENANCE_MODE_FOR_USERS_WITH_EMAIL_DOMAIN:
+                return False
         else:
             if settings.MAINTENANCE_MODE_IGNORE_ANONYMOUS_USER \
                     and request.user.is_anonymous:
@@ -123,7 +129,13 @@ def need_maintenance_response(request):
             if settings.MAINTENANCE_MODE_IGNORE_AUTHENTICATED_USER \
                     and request.user.is_authenticated:
                 return False
-
+            
+            if settings.MAINTENANCE_MODE_FOR_USERS_WITH_EMAIL_DOMAIN \
+                    and request.user.is_authenticated \
+                    and request.user.email \
+                    and request.user.email.split('@')[1] in settings.MAINTENANCE_MODE_FOR_USERS_WITH_EMAIL_DOMAIN:
+                return False
+            
         if settings.MAINTENANCE_MODE_IGNORE_STAFF \
                 and request.user.is_staff:
             return False
