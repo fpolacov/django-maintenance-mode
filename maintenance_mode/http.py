@@ -105,6 +105,17 @@ def need_maintenance_response(request):
         # maintenance_mode.urls not added
         pass
 
+    if settings.MAINTENANCE_MODE_IGNORE_URLS:
+
+        for url in settings.MAINTENANCE_MODE_IGNORE_URLS:
+
+            if not isinstance(url, pattern_class):
+                url = str(url)
+            url_re = re.compile(url)
+
+            if url_re.match(request.path_info):
+                return False
+            
     if hasattr(request, 'user'):
 
         if django.VERSION < (1, 10):
@@ -193,17 +204,6 @@ def need_maintenance_response(request):
             ip_address_re = re.compile(ip_address)
 
             if ip_address_re.match(client_ip_address):
-                return False
-
-    if settings.MAINTENANCE_MODE_IGNORE_URLS:
-
-        for url in settings.MAINTENANCE_MODE_IGNORE_URLS:
-
-            if not isinstance(url, pattern_class):
-                url = str(url)
-            url_re = re.compile(url)
-
-            if url_re.match(request.path_info):
                 return False
 
     if settings.MAINTENANCE_MODE_REDIRECT_URL:
